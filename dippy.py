@@ -359,7 +359,7 @@ def histogram_equalize(img, L=256):
     for k in range(0, L):
         sk[k] = 0
         for j in range(0, k+1):
-            sk[k] += sumrk[j] * (L-1.)
+            sk[k] += int(sumrk[j] * (L-1.))
     s = r.copy()
     for i in range(0, s.shape[0]):
         for j in range(0, s.shape[1]):
