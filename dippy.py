@@ -28,7 +28,6 @@ import math
 def show(img, L=256, scale=False, stretch=False):
     '''
     Shows a grayscale image
-
     img:        Grayscale image
     L:          Gray levels (default 256)
     scale:      True for scaled images, False for the original size (default)
@@ -52,7 +51,6 @@ def show(img, L=256, scale=False, stretch=False):
 def compare(img1, img2, L=256, scale=False, stretch=False):
     '''
     Compares two grayscale images
-
     img1:       Image 1
     img2:       Image 2
     L:          Gray levels (default 256)
@@ -91,7 +89,6 @@ def compare(img1, img2, L=256, scale=False, stretch=False):
 def convert_to_grayscale(img):
     '''
     Convert a color image to grayscale (256 levels)
-
     img:    Input image
     Returns grayscale image
     '''
@@ -101,7 +98,6 @@ def convert_to_grayscale(img):
 def clip(img, start, end):
     '''
     Clip an image
-
     img:    Input image
     start:  Start (row, column)
     end:    End (row, column)
@@ -113,7 +109,6 @@ def clip(img, start, end):
 def row_column_delete(img):
     '''
     Row-column delete
-
     img:    Input image
     Returns shrinked image
     '''
@@ -127,7 +122,6 @@ def row_column_delete(img):
 def nearest_neighbor_interpolate(img, scale):
     '''
     Nearest neighbor interpolation
-
     img:    Input image
     scale:  Scalar scale
     Returns interpolated image
@@ -144,7 +138,6 @@ def nearest_neighbor_interpolate(img, scale):
 def bilinear_interpolate(img, scale):
     '''
     Bilinear interpolation
-
     img:    Input image
     scale:  Scalar scale
     Returns interpolated image
@@ -231,7 +224,6 @@ def bilinear_interpolate(img, scale):
 def grayscale_transform(img, new_L, L=256):
     '''
     Grayscale transform
-
     new_L:  New gray levels
     L:      Original gray levels (default 256)
     Returns grayscaled image
@@ -245,7 +237,6 @@ def grayscale_transform(img, new_L, L=256):
 def negative_transform(img, L=256):
     '''
     Negative transform
-
     img:    Input image
     L:      Gray levels (default 256)
     Returns transformed image
@@ -257,7 +248,6 @@ def negative_transform(img, L=256):
 def linear_transform(img, cp1, cp2, L=256):
     '''
     Linear transform using two control points
-
     img:    Input image
     cp1:    Control point 1 (r1, s1)
     cp2:    Control point 2 (r2, s2)
@@ -281,7 +271,6 @@ def linear_transform(img, cp1, cp2, L=256):
 def log_transform(img, L=256):
     '''
     Log transform
-
     img:    Input image
     L:      Gray levels (default 256)
     Returns transformed image
@@ -294,7 +283,6 @@ def log_transform(img, L=256):
 def inverse_log_transform(img, L=256):
     '''
     Inverse log transform
-
     img:    Input image
     L:      Gray levels (default 256)
     Returns transformed image
@@ -307,7 +295,6 @@ def inverse_log_transform(img, L=256):
 def power_transform(img, gamma, L=256):
     '''
     Power transform
-
     img:    Input image
     gamma:  gamma
     L:      Gray levels (default 256)
@@ -316,4 +303,31 @@ def power_transform(img, gamma, L=256):
     r = img
     c = (L - 1.) / np.max(r)**gamma
     s = c * r**gamma
+    return s
+
+def gray_level_slice(img, gray_range, new_gray, binary=False):
+    '''
+    Gray-level slice
+    img:        Input image
+    gray_range: Gray-level range (rmin, rmax)
+    new_gray:   New gray level
+    binary:     True for 0 for outside gray_range, False for identity (default)
+    '''
+    r = img
+    rmin = gray_range[0]
+    rmax = gray_range[1]
+    if binary:
+        s = np.where(np.logical_and(r >= rmin, r <= rmax), new_gray, 0)
+    else:
+        s = np.where(np.logical_and(r >= rmin, r <= rmax), new_gray, r)
+    return s
+
+def bit_plane_slice(img, bit_plane):
+    '''
+    Bit-plane slice
+    img:        Input image
+    bit_plane:  Bit plane starting with 0
+    '''
+    r = img
+    s = np.bitwise_and(r, 1<<bit_plane)
     return s
