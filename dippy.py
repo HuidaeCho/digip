@@ -27,7 +27,7 @@ import math
 
 def show(img, L=256, scale=False, stretch=False):
     '''
-    Shows a grayscale image
+    Show a grayscale image
     img:        Grayscale image
     L:          Gray levels (default 256)
     scale:      True for scaled images, False for the original size (default)
@@ -50,7 +50,7 @@ def show(img, L=256, scale=False, stretch=False):
 
 def compare(img1, img2, L=256, scale=False, stretch=False):
     '''
-    Compares two grayscale images
+    Compare two grayscale images
     img1:       Image 1
     img2:       Image 2
     L:          Gray levels (default 256)
@@ -84,6 +84,21 @@ def compare(img1, img2, L=256, scale=False, stretch=False):
         figx += img1.shape[0]
         figy = max(img1.shape[1]-img2.shape[1], 0)
         plt.figimage(img2, figx, figy, cmap='gray', vmin=vmin2, vmax=vmax2)
+    plt.show()
+
+def histogram(img, L=256, prob=False):
+    '''
+    Plot the histogram of a grayscale image
+    img:    Input image
+    L:      Gray levels (default 256)
+    prob:   True for probability density, False for counts (default)
+    '''
+    levels = range(0, L)
+    hist = [sum(sum(img==l)) for l in levels]
+    if prob:
+        hist /= sum(hist)
+    plt.xlim(0., L-1.)
+    plt.vlines(levels, ymin=0, ymax=hist)
     plt.show()
 
 def convert_to_grayscale(img):
@@ -121,7 +136,7 @@ def row_column_delete(img):
 
 def nearest_neighbor_interpolate(img, scale):
     '''
-    Nearest neighbor interpolation
+    Nearest neighbor interpolate
     img:    Input image
     scale:  Scalar scale
     Returns interpolated image
@@ -137,7 +152,7 @@ def nearest_neighbor_interpolate(img, scale):
 
 def bilinear_interpolate(img, scale):
     '''
-    Bilinear interpolation
+    Bilinear interpolate
     img:    Input image
     scale:  Scalar scale
     Returns interpolated image
@@ -330,4 +345,23 @@ def bit_plane_slice(img, bit_plane):
     '''
     r = img
     s = np.bitwise_and(r, 1<<bit_plane)
+    return s
+
+def histogram_equalize(img, L=256):
+    '''
+    Histogram equalize
+    img:        Input image
+    L:          Gray levels (default 256)
+    '''
+    r = img
+    sumrk = [sum(sum(r==j))/r.size for j in range(0, L)]
+    sk = {}
+    for k in range(0, L):
+        sk[k] = 0
+        for j in range(0, k+1):
+            sk[k] += sumrk[j] * (L-1.)
+    s = r.copy()
+    for i in range(0, s.shape[0]):
+        for j in range(0, s.shape[1]):
+            s[i,j] = sk[s[i,j]]
     return s
