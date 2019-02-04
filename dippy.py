@@ -344,7 +344,7 @@ def bit_plane_slice(img, bit_plane):
     bit_plane:  Bit plane starting with 0
     '''
     r = img
-    s = np.bitwise_and(r.astype(type), 1<<bit_plane)
+    s = np.bitwise_and(r.astype(int), 1<<bit_plane)
     return s
 
 def histogram_equalize(img, L=256):
