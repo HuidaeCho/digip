@@ -344,7 +344,7 @@ def bit_plane_slice(img, bit_plane):
     bit_plane:  Bit plane starting with 0
     '''
     r = img
-    s = np.bitwise_and(r, 1<<bit_plane)
+    s = np.bitwise_and(r.astype(type), 1<<bit_plane)
     return s
 
 def histogram_equalize(img, L=256):
@@ -359,9 +359,10 @@ def histogram_equalize(img, L=256):
     for k in range(0, L):
         sk[k] = 0
         for j in range(0, k+1):
-            sk[k] += int(sumrk[j] * (L-1.))
+            sk[k] += sumrk[j]
+    skmax = np.max(list(sk.values()))
     s = r.copy()
     for i in range(0, s.shape[0]):
         for j in range(0, s.shape[1]):
-            s[i,j] = sk[s[i,j]]
+            s[i,j] = int(sk[s[i,j]]/skmax*(L-1.))
     return s
