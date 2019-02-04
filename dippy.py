@@ -322,9 +322,9 @@ def gray_level_slice(img, gray_range, new_gray, binary=False):
     rmin = gray_range[0]
     rmax = gray_range[1]
     if binary:
-        s = np.where(np.logical_and(r >= rmin, r <= rmax), new_gray, 0)
+        s = np.where(np.logical_and(r >= rmin, r <= rmax), new_gray, 0).astype(float)
     else:
-        s = np.where(np.logical_and(r >= rmin, r <= rmax), new_gray, r)
+        s = np.where(np.logical_and(r >= rmin, r <= rmax), new_gray, r).astype(float)
     return s
 
 def bit_plane_slice(img, bit_plane):
