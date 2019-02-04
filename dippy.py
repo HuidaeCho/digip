@@ -24,6 +24,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import math
+import random
 
 def show(img, L=256, scale=False, stretch=False):
     '''
@@ -105,7 +106,6 @@ def convert_to_grayscale(img):
     '''
     Convert a color image to grayscale (256 levels)
     img:    Input image
-    Returns grayscale image
     '''
     gray_img = np.dot(img, [.299, .587, .114])
     return gray_img
@@ -116,7 +116,6 @@ def clip(img, start, end):
     img:    Input image
     start:  Start (row, column)
     end:    End (row, column)
-    Returns clipped image
     '''
     clipped = img[start[0]:end[0], start[1]:end[1], :]
     return clipped
@@ -125,7 +124,6 @@ def row_column_delete(img):
     '''
     Row-column delete
     img:    Input image
-    Returns shrinked image
     '''
     new_shape = [int(x / 2) for x in img.shape]
     new_img = np.empty(new_shape)
@@ -139,7 +137,6 @@ def nearest_neighbor_interpolate(img, scale):
     Nearest neighbor interpolate
     img:    Input image
     scale:  Scalar scale
-    Returns interpolated image
     '''
     new_shape = [int(scale * x) for x in img.shape]
     new_img = np.empty(new_shape)
@@ -155,7 +152,6 @@ def bilinear_interpolate(img, scale):
     Bilinear interpolate
     img:    Input image
     scale:  Scalar scale
-    Returns interpolated image
     '''
     def get_corner_neighbor(img, x, y):
         return img[int(y),int(x)]
@@ -241,7 +237,6 @@ def grayscale_transform(img, new_L, L=256):
     Grayscale transform
     new_L:  New gray levels
     L:      Original gray levels (default 256)
-    Returns grayscaled image
     '''
     r = img
     s = r.copy()
@@ -254,7 +249,6 @@ def negative_transform(img, L=256):
     Negative transform
     img:    Input image
     L:      Gray levels (default 256)
-    Returns transformed image
     '''
     r = img
     s = L - 1. - r
@@ -267,7 +261,6 @@ def linear_transform(img, cp1, cp2, L=256):
     cp1:    Control point 1 (r1, s1)
     cp2:    Control point 2 (r2, s2)
     L:      Gray levels (default 256)
-    Returns transformed image
     '''
     r = img
     r1 = cp1[0]
@@ -288,7 +281,6 @@ def log_transform(img, L=256):
     Log transform
     img:    Input image
     L:      Gray levels (default 256)
-    Returns transformed image
     '''
     r = img
     c = (L - 1.) / math.log10(1. + np.max(r))
@@ -300,7 +292,6 @@ def inverse_log_transform(img, L=256):
     Inverse log transform
     img:    Input image
     L:      Gray levels (default 256)
-    Returns transformed image
     '''
     r = img
     c = (L - 1.) / 10.**np.max(r)
@@ -313,7 +304,6 @@ def power_transform(img, gamma, L=256):
     img:    Input image
     gamma:  gamma
     L:      Gray levels (default 256)
-    Returns transformed image
     '''
     r = img
     c = (L - 1.) / np.max(r)**gamma
@@ -344,14 +334,14 @@ def bit_plane_slice(img, bit_plane):
     bit_plane:  Bit plane starting with 0
     '''
     r = img
-    s = np.bitwise_and(r.astype(int), 1<<bit_plane)
+    s = np.bitwise_and(r.astype(int), 1<<bit_plane).astype(float)
     return s
 
 def histogram_equalize(img, L=256):
     '''
     Histogram equalize
-    img:        Input image
-    L:          Gray levels (default 256)
+    img:    Input image
+    L:      Gray levels (default 256)
     '''
     r = img
     sumrk = [sum(sum(r==j))/r.size for j in range(0, L)]
@@ -366,3 +356,73 @@ def histogram_equalize(img, L=256):
         for j in range(0, s.shape[1]):
             s[i,j] = int(sk[s[i,j]]/skmax*(L-1.))
     return s
+
+def bitwise_not(img):
+    '''
+    Bitwise not
+    img:   Input image
+    '''
+    g = np.bitwise_not(img.astype(int)).astype(float)
+    return g
+
+def bitwise_and(img1, img2):
+    '''
+    Bitwise and
+    img1:   Input image 1
+    img2:   Input image 2
+    '''
+    g = np.bitwise_and(img1.astype(int), img2.astype(int)).astype(float)
+    return g
+
+def bitwise_or(img1, img2):
+    '''
+    Bitwise or
+    img1:   Input image 1
+    img2:   Input image 2
+    '''
+    g = np.bitwise_or(img1.astype(int), img2.astype(int)).astype(float)
+    return g
+
+def bitwise_xor(img1, img2):
+    '''
+    Bitwise xor
+    img1:   Input image 1
+    img2:   Input image 2
+    '''
+    g = np.bitwise_xor(img1.astype(int), img2.astype(int)).astype(float)
+    return g
+
+def subtract(img1, img2):
+    '''
+    Subtract
+    img1:   Input image 1
+    img2:   Input image 2
+    '''
+    g = img1 - img2
+    return g
+
+def add_noise(img, prob, max):
+    '''
+    Add noise
+    img:    Input image
+    prob:   Probability of noise
+    max:    Maximum noise
+    '''
+    g = img.copy()
+    for i in range(0, g.shape[0]):
+        for j in range(0, g.shape[1]):
+            if random.random() < prob:
+                g[i,j] += random.randint(-max, max)
+    return g
+
+def average(imgs):
+    '''
+    Average images
+    imgs:   Array of input images
+    '''
+    K = len(imgs)
+    g = imgs[0].copy()
+    for i in range(1, K):
+        g += imgs[i]
+    g /= K
+    return g
