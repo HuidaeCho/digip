@@ -392,13 +392,15 @@ def bitwise_xor(img1, img2):
     g = np.bitwise_xor(img1.astype(int), img2.astype(int)).astype(float)
     return g
 
-def add(img1, img2):
+def add(imgs):
     '''
     Add
-    img1:   Input image 1
-    img2:   Input image 2
+    imgs:   Array of input images
     '''
-    g = img1 + img2
+    K = len(imgs)
+    g = imgs[0].copy()
+    for i in range(1, K):
+        g += imgs[i]
     return g
 
 def subtract(img1, img2):
@@ -429,9 +431,5 @@ def average(imgs):
     Average images
     imgs:   Array of input images
     '''
-    K = len(imgs)
-    g = imgs[0].copy()
-    for i in range(1, K):
-        g += imgs[i]
-    g /= K
+    g = add(imgs) / len(imgs)
     return g
