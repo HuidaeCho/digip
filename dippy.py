@@ -322,9 +322,11 @@ def gray_level_slice(img, gray_range, new_gray, binary=False):
     rmin = gray_range[0]
     rmax = gray_range[1]
     if binary:
-        s = np.where(np.logical_and(r >= rmin, r <= rmax), new_gray, 0).astype(float)
+        s = np.where(np.logical_and(r >= rmin, r <= rmax),
+                new_gray, 0).astype(float)
     else:
-        s = np.where(np.logical_and(r >= rmin, r <= rmax), new_gray, r).astype(float)
+        s = np.where(np.logical_and(r >= rmin, r <= rmax),
+                new_gray, r).astype(float)
     return s
 
 def bit_plane_slice(img, bit_plane):
@@ -436,9 +438,9 @@ def average(imgs):
     g /= K
     return g
 
-def find_neighborhood_values(img, current, size):
+def find_neighborhood(img, current, size):
     '''
-    Find neighborhood values
+    Find neighborhood
     img:        Input image
     current:    Current pixel (row, column)
     size:       Neighborhood size (rows, columns)
@@ -449,31 +451,63 @@ def find_neighborhood_values(img, current, size):
     row_max = min(current[0]+half_row_size, img.shape[0]-1)
     col_min = max(current[1]-half_col_size, 0)
     col_max = min(current[1]+half_col_size, img.shape[1]-1)
-    S = []
-    for row in range(row_min, row_max+1):
-        for col in range(col_min, col_max+1):
-            S.append(img[row][col])
+    S = img[row_min:row_max+1, col_min:col_max+1]
     return S
 
-def local_statistics(img, size):
+def local_statistics(img, size, stats):
     '''
-    Local statistics (mean, standard deviation, median, minimum, maximum)
+    Local statistics
     img:    Input image
     size:   Neighborhood size (rows, columns)
+    stats:  Statistics to calculate
+            Bitwise-or value:
+             1 mean
+             2 standard deviation
+             4 median
+             8 minimum
+            16 maximum
     '''
-    mean = img.copy()
-    std = img.copy()
-    median = img.copy()
-    minimum = img.copy()
-    maximum = img.copy()
+    half_row_size = int((size[0]-1)/2)
+    half_col_size = int((size[1]-1)/2)
+    if stats & 1:
+        mean = img.copy()
+    else:
+        mean = None
+    if stats & 2:
+        std = img.copy()
+    else:
+        std = None
+    if stats & 4:
+        median = img.copy()
+    else:
+        median = None
+    if stats & 8:
+        minimum = img.copy()
+    else:
+        minimum = None
+    if stats & 16:
+        maximum = img.copy()
+    else:
+        maximum = None
     for row in range(0, img.shape[0]):
         for col in range(0, img.shape[1]):
-            S = find_neighborhood_values(img, (row, col), size)
-            mean[row][col] = np.mean(S)
-            std[row][col] = np.std(S)
-            median[row][col] = np.median(S)
-            minimum[row][col] = np.min(S)
-            maximum[row][col] = np.max(S)
+            # find neighborhood
+            row_min = max(row-half_row_size, 0)
+            row_max = min(row+half_row_size, img.shape[0]-1)
+            col_min = max(col-half_col_size, 0)
+            col_max = min(col+half_col_size, img.shape[1]-1)
+            S = img[row_min:row_max+1, col_min:col_max+1]
+            # calculate statistics
+            if stats & 1:
+                mean[row][col] = np.mean(S)
+            if stats & 2:
+                std[row][col] = np.std(S)
+            if stats & 4:
+                median[row][col] = np.median(S)
+            if stats & 8:
+                minimum[row][col] = np.min(S)
+            if stats & 16:
+                maximum[row][col] = np.max(S)
     return mean, std, median, minimum, maximum
 
 def local_enhance(img, local_mean, local_std, mult, k):
@@ -493,8 +527,12 @@ def local_enhance(img, local_mean, local_std, mult, k):
         std = np.std(img)
         if mult < 1:
             # enhance bright pixels
-            g = np.where(np.logical_and(local_mean >= k[0]*mean, np.logical_and(local_std >= k[1]*std, local_std <= k[2]*std)), mult*img, img)
+            g = np.where(np.logical_and(local_mean >= k[0]*mean,
+                    np.logical_and(local_std >= k[1]*std,
+                        local_std <= k[2]*std)), mult*img, img)
         else:
             # enhance dark pixels
-            g = np.where(np.logical_and(local_mean <= k[0]*mean, np.logical_and(local_std >= k[1]*std, local_std <= k[2]*std)), mult*img, img)
+            g = np.where(np.logical_and(local_mean <= k[0]*mean,
+                    np.logical_and(local_std >= k[1]*std,
+                        local_std <= k[2]*std)), mult*img, img)
     return g
