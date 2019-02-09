@@ -426,3 +426,60 @@ def average(imgs):
         g += imgs[i]
     g /= K
     return g
+
+def find_neighborhood_values(img, current, size):
+    '''
+    Find neighborhood values
+    img:        Input image
+    current:    Current pixel (row, column)
+    size:       Neighborhood size (rows, columns)
+    '''
+    half_row_size = int((size[0]-1)/2)
+    half_col_size = int((size[1]-1)/2)
+    row_min = max(current[0]-half_row_size, 0)
+    row_max = min(current[0]+half_row_size, img.shape[0]-1)
+    col_min = max(current[1]-half_col_size, 0)
+    col_max = min(current[1]+half_col_size, img.shape[1]-1)
+    S = []
+    for row in range(row_min, row_max+1):
+        for col in range(col_min, col_max+1):
+            S.append(img[row][col])
+    return S
+
+def local_statistics(img, size):
+    '''
+    Local statistics (mean, standard deviation)
+    img:    Input image
+    size:   Neighborhood size (rows, columns)
+    '''
+    mean = img.copy()
+    std = img.copy()
+    for row in range(0, img.shape[0]):
+        for col in range(0, img.shape[1]):
+            S = find_neighborhood_values(img, (row, col), size)
+            mean[row][col] = np.mean(S)
+            std[row][col] = np.std(S)
+    return mean, std
+
+def local_enhance(img, local_mean, local_std, mult, k):
+    '''
+    Local enhance
+    img:        Input image
+    local_mean: Local mean image
+    local_std:  Local standard deviation imagge
+    mult:       Gray level multiplier
+    k:          Criteria parameters (k0, k1, k2)
+    '''
+    if mult == 1:
+        # identity
+        g = img.copy()
+    else:
+        mean = np.mean(img)
+        std = np.std(img)
+        if mult < 1:
+            # enhance bright pixels
+            g = np.where(np.logical_and(local_mean >= k[0]*mean, np.logical_and(local_std >= k[1]*std, local_std <= k[2]*std)), mult*img, img)
+        else:
+            # enhance dark pixels
+            g = np.where(np.logical_and(local_mean <= k[0]*mean, np.logical_and(local_std >= k[1]*std, local_std <= k[2]*std)), mult*img, img)
+    return g
