@@ -392,6 +392,15 @@ def bitwise_xor(img1, img2):
     g = np.bitwise_xor(img1.astype(int), img2.astype(int)).astype(float)
     return g
 
+def add(img1, img2):
+    '''
+    Add
+    img1:   Input image 1
+    img2:   Input image 2
+    '''
+    g = img1 + img2
+    return g
+
 def subtract(img1, img2):
     '''
     Subtract
