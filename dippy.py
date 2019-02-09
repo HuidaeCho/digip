@@ -457,18 +457,24 @@ def find_neighborhood_values(img, current, size):
 
 def local_statistics(img, size):
     '''
-    Local statistics (mean, standard deviation)
+    Local statistics (mean, standard deviation, median, minimum, maximum)
     img:    Input image
     size:   Neighborhood size (rows, columns)
     '''
     mean = img.copy()
     std = img.copy()
+    median = img.copy()
+    minimum = img.copy()
+    maximum = img.copy()
     for row in range(0, img.shape[0]):
         for col in range(0, img.shape[1]):
             S = find_neighborhood_values(img, (row, col), size)
             mean[row][col] = np.mean(S)
             std[row][col] = np.std(S)
-    return mean, std
+            median[row][col] = np.median(S)
+            minimum[row][col] = np.min(S)
+            maximum[row][col] = np.max(S)
+    return mean, std, median, minimum, maximum
 
 def local_enhance(img, local_mean, local_std, mult, k):
     '''
