@@ -499,15 +499,15 @@ def local_statistics(img, size, stats):
             S = img[row_min:row_max+1, col_min:col_max+1]
             # calculate statistics
             if stats & 1:
-                mean[row][col] = np.mean(S)
+                mean[row,col] = np.mean(S)
             if stats & 2:
-                std[row][col] = np.std(S)
+                std[row,col] = np.std(S)
             if stats & 4:
-                median[row][col] = np.median(S)
+                median[row,col] = np.median(S)
             if stats & 8:
-                minimum[row][col] = np.min(S)
+                minimum[row,col] = np.min(S)
             if stats & 16:
-                maximum[row][col] = np.max(S)
+                maximum[row,col] = np.max(S)
     return mean, std, median, minimum, maximum
 
 def local_enhance(img, local_mean, local_std, mult, k):
@@ -535,4 +535,26 @@ def local_enhance(img, local_mean, local_std, mult, k):
             g = np.where(np.logical_and(local_mean <= k[0]*mean,
                     np.logical_and(local_std >= k[1]*std,
                         local_std <= k[2]*std)), mult*img, img)
+    return g
+
+def weighted_average(img, weights):
+    '''
+    Weighted average
+    img:        Input image
+    weights:    Weights array
+    '''
+    half_row_size = int((weights.shape[0]-1)/2)
+    half_col_size = int((weights.shape[1]-1)/2)
+    g = img.copy()
+    for row in range(0, img.shape[0]):
+        for col in range(0, img.shape[1]):
+            # find neighborhood
+            row_min = max(row-half_row_size, 0)
+            row_max = min(row+half_row_size, img.shape[0]-1)
+            col_min = max(col-half_col_size, 0)
+            col_max = min(col+half_col_size, img.shape[1]-1)
+            S = img[row_min:row_max+1, col_min:col_max+1]
+            w = weights[row_min-row+1:row_max+1-row+1,
+                        col_min-col+1:col_max+1-col+1]
+            g[row,col] = np.sum(S*w)/np.sum(w)
     return g
