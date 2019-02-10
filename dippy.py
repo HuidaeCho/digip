@@ -26,9 +26,17 @@ import numpy as np
 import math
 import random
 
-def show(img, L=256, scale=False, stretch=False):
+def read_image(filename):
     '''
-    Show a grayscale image
+    Read an image
+    filename:   Filename
+    '''
+    img = plt.imread(filename)
+    return img
+
+def show_image(img, L=256, scale=False, stretch=False):
+    '''
+    Show an image
     img:        Grayscale image
     L:          Gray levels (default 256)
     scale:      True for scaled images, False for the original size (default)
@@ -49,9 +57,9 @@ def show(img, L=256, scale=False, stretch=False):
         plt.figimage(img, 0, 0, cmap='gray', vmin=vmin, vmax=vmax)
     plt.show()
 
-def compare(img1, img2, L=256, scale=False, stretch=False):
+def compare_images(img1, img2, L=256, scale=False, stretch=False):
     '''
-    Compare two grayscale images
+    Compare two images
     img1:       Image 1
     img2:       Image 2
     L:          Gray levels (default 256)
@@ -232,16 +240,40 @@ def bilinear_interpolate(img, scale):
 
     return new_img
 
+def normalize_gray(img, grange=(0, 255)):
+    '''
+    Normalize gray levels to [0, 1]
+    img:    Input image
+    grange: Gray-level range (min, max) (default 0, 255)
+    '''
+    r = img.astype(float)
+    if grange == None:
+        grange = (np.min(r), np.max(r))
+    s = (r - grange[0]) / (grange[1] - grange[0])
+    return s
+
+def rescale_gray(img, grange=(0, 1), L=256):
+    '''
+    Rescale gray levels to [0, L-1]
+    img:    Input image
+    L:      Gray levels (default 256)
+    '''
+    r = img.astype(float)
+    if grange == None:
+        grange = (np.min(r), np.max(r))
+    s = ((r - grange[0]) / (grange[1] - grange[0]) * (L - 1.)).astype(int)
+    s = np.clip(s, 0, L-1.)
+    return s
+
 def grayscale_transform(img, new_L, L=256):
     '''
     Grayscale transform
+    img:    Input image
     new_L:  New gray levels
     L:      Original gray levels (default 256)
     '''
     r = img
-    s = r.copy()
-    for c in range(0, new_L):
-        s[(s >= c*L/new_L) & (s < (c+1)*L/new_L)] = c
+    s = (r * (new_L-1.) / (L-1.)).astype(int)
     return s
 
 def negative_transform(img, L=256):
@@ -310,17 +342,17 @@ def power_transform(img, gamma, L=256):
     s = c * r**gamma
     return s
 
-def gray_level_slice(img, gray_range, new_gray, binary=False):
+def gray_level_slice(img, grange, new_gray, binary=False):
     '''
     Gray-level slice
     img:        Input image
-    gray_range: Gray-level range (rmin, rmax)
+    grange:     Gray-level range (rmin, rmax)
     new_gray:   New gray level
-    binary:     True for 0 for outside gray_range, False for identity (default)
+    binary:     True for 0 for outside grange, False for identity (default)
     '''
     r = img
-    rmin = gray_range[0]
-    rmax = gray_range[1]
+    rmin = grange[0]
+    rmax = grange[1]
     if binary:
         s = np.where(np.logical_and(r >= rmin, r <= rmax),
                 new_gray, 0).astype(float)
@@ -537,15 +569,16 @@ def local_enhance(img, local_mean, local_std, mult, k):
                         local_std <= k[2]*std)), mult*img, img)
     return g
 
-def weighted_average(img, weights):
+def convolute(img, mask, average=False):
     '''
-    Weighted average
+    Convolute
     img:        Input image
-    weights:    Weights array
+    mask:       Mask
+    average:    True for weighted average, False for convolution (default)
     '''
-    half_row_size = int((weights.shape[0]-1)/2)
-    half_col_size = int((weights.shape[1]-1)/2)
-    g = img.copy()
+    half_row_size = int((mask.shape[0]-1)/2)
+    half_col_size = int((mask.shape[1]-1)/2)
+    g = img.astype(float)
     for row in range(0, img.shape[0]):
         for col in range(0, img.shape[1]):
             # find neighborhood
@@ -554,7 +587,82 @@ def weighted_average(img, weights):
             col_min = max(col-half_col_size, 0)
             col_max = min(col+half_col_size, img.shape[1]-1)
             S = img[row_min:row_max+1, col_min:col_max+1]
-            w = weights[row_min-row+1:row_max+1-row+1,
-                        col_min-col+1:col_max+1-col+1]
-            g[row,col] = np.sum(S*w)/np.sum(w)
+            w = mask[row_min-row+1:row_max+1-row+1,
+                     col_min-col+1:col_max+1-col+1]
+            if average:
+                g[row,col] = np.sum(S*w)/np.sum(w)
+            else:
+                g[row,col] = np.sum(S*w)
+    return g
+
+def weighted_average(img, weights):
+    '''
+    Weighted average
+    img:        Input image
+    weights:    Weights
+    '''
+    g = convolute(img, weights, True);
+    return g
+
+def first_derivative(img):
+    '''
+    First derivative using the Sobel operators
+    img:    Input image
+    '''
+    mask_x = np.array([[-1, -2, -1],
+                       [ 0,  0,  0],
+                       [ 1,  2,  1]])
+    mask_y = np.array([[-1,  0,  1],
+                       [-2,  0,  2],
+                       [-1,  0,  1]])
+    g = np.abs(convolute(img, mask_x))+np.abs(convolute(img, mask_y))
+    return g
+
+def second_derivative(img, diag=True):
+    '''
+    Second derivative using the Laplacian filter
+    img:    Input image
+    diag:   True for diagonal directions (default),
+            False for no diagonal directions
+    '''
+    if diag:
+        mask = np.array([[1,  1, 1],
+                         [1, -8, 1],
+                         [1,  1, 1]])
+    else:
+        mask = np.array([[0,  1, 0],
+                         [1, -4, 1],
+                         [0,  1, 0]])
+    g = convolute(img, mask)
+    return g
+
+def sharpen(img, diag=True):
+    '''
+    Laplacian sharpen
+    img:    Input image
+    diag:   True for diagonal directions (default),
+            False for no diagonal directions
+    '''
+    lap = second_derivative(img, diag)
+    g = img - lap
+    g = rescale_gray(g, (0, np.max(g)))
+    return g
+
+def high_boost_filter(img, A=1, diag=True):
+    '''
+    High-boost filter using the Laplacian
+    img:    Input image
+    A:      High-boost filter parameter
+    diag:   True for diagonal directions (default),
+            False for no diagonal directions
+    '''
+    if diag:
+        mask = np.array([[-1,  -1, -1],
+                         [-1, A+8, -1],
+                         [-1,  -1, -1]])
+    else:
+        mask = np.array([[ 0,  -1,  0],
+                         [-1, A+4, -1],
+                         [ 0,  -1,  0]])
+    g = convolute(img, mask)
     return g
