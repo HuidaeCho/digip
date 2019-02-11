@@ -548,7 +548,7 @@ def local_enhance(img, local_mean, local_std, mult, k):
     img:        Input image
     local_mean: Local mean image
     local_std:  Local standard deviation imagge
-    mult:       Gray level multiplier
+    mult:       Gray-level multiplier
     k:          Criteria parameters (k0, k1, k2)
     '''
     if mult == 1:
