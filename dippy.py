@@ -606,7 +606,7 @@ def weighted_average(img, weights):
 
 def first_derivative(img):
     '''
-    First derivative using the Sobel operators
+    First derivative using the Sobel filter
     img:    Input image
     '''
     mask_x = np.array([[-1, -2, -1],
