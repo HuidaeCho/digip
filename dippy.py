@@ -644,12 +644,15 @@ def sharpen(img, diag=True, L=256):
             False for no diagonal directions
     L:      Gray levels (default 256)
     '''
-    grange = 4*(-L+1., L-1.)
     if diag:
-        grange *= 2
+        mult = 8
+    else:
+        mult = 4
+    grange = tuple(mult*x for x in (-L+1., L-1.))
+
     lap = second_derivative(img, diag)
-    g = img - rescale_gray_levels(lap, grange)
-    g = rescale_gray_levels(g, (np.min(g), np.max(g)))
+    g = img - rescale_gray_levels(lap, grange, L)
+    g = rescale_gray_levels(g, (np.min(g), np.max(g)), L)
     return g
 
 def high_boost_filter(img, A=1, diag=True):
