@@ -240,7 +240,7 @@ def bilinear_interpolate(img, scale):
 
     return new_img
 
-def normalize_gray(img, grange=(0, 255)):
+def normalize_gray_levels(img, grange=(0, 255)):
     '''
     Normalize gray levels to [0, 1]
     img:    Input image
@@ -252,7 +252,7 @@ def normalize_gray(img, grange=(0, 255)):
     s = (r - grange[0]) / (grange[1] - grange[0])
     return s
 
-def rescale_gray(img, grange=(0, 1), L=256):
+def rescale_gray_levels(img, grange=(0, 1), L=256):
     '''
     Rescale gray levels to [0, L-1]
     img:    Input image
@@ -645,7 +645,7 @@ def sharpen(img, diag=True):
     '''
     lap = second_derivative(img, diag)
     g = img - lap
-    g = rescale_gray(g, (0, np.max(g)))
+    g = rescale_gray_levels(g, (0, np.max(g)))
     return g
 
 def high_boost_filter(img, A=1, diag=True):
