@@ -636,16 +636,20 @@ def second_derivative(img, diag=True):
     g = convolute(img, mask)
     return g
 
-def sharpen(img, diag=True):
+def sharpen(img, diag=True, L=256):
     '''
     Laplacian sharpen
     img:    Input image
     diag:   True for diagonal directions (default),
             False for no diagonal directions
+    L:      Gray levels (default 256)
     '''
+    grange = 4*(-L+1., L-1.)
+    if diag:
+        grange *= 2
     lap = second_derivative(img, diag)
-    g = img - lap
-    g = rescale_gray_levels(g, (0, np.max(g)))
+    g = img - rescale_gray_levels(lap, grange)
+    g = rescale_gray_levels(g, (np.min(g), np.max(g)))
     return g
 
 def high_boost_filter(img, A=1, diag=True):
