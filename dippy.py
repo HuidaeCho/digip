@@ -385,7 +385,7 @@ def histogram_equalize(img, L=256):
         for j in range(0, k+1):
             sk[k] += sumrk[j]
     skmax = np.max(list(sk.values()))
-    s = r.copy()
+    s = np.ndarray(r.shape)
     for i in range(0, s.shape[0]):
         for j in range(0, s.shape[1]):
             s[i,j] = int(sk[s[i,j]]/skmax*(L-1.))
@@ -502,23 +502,23 @@ def local_statistics(img, size, stats):
     half_row_size = int((size[0]-1)/2)
     half_col_size = int((size[1]-1)/2)
     if stats & 1:
-        mean = img.copy()
+        mean = np.ndarray(img.shape)
     else:
         mean = None
     if stats & 2:
-        std = img.copy()
+        std = np.ndarray(img.shape)
     else:
         std = None
     if stats & 4:
-        median = img.copy()
+        median = np.ndarray(img.shape)
     else:
         median = None
     if stats & 8:
-        minimum = img.copy()
+        minimum = np.ndarray(img.shape)
     else:
         minimum = None
     if stats & 16:
-        maximum = img.copy()
+        maximum = np.ndarray(img.shape)
     else:
         maximum = None
     for row in range(0, img.shape[0]):
@@ -673,3 +673,157 @@ def high_boost_filter(img, A=1, diag=True):
                          [ 0,  -1,  0]])
     g = convolute(img, mask)
     return g
+
+def dft_1d(f):
+    '''
+    1-dimensional discrete Fourier transform
+    f:  Original image
+    '''
+    M = len(f)
+    F = np.zeros(M, dtype=complex)
+    for u in range(0, M):
+        for x in range(0, M):
+            F[u] += f[x]*np.exp(-2j*np.pi*u*x/M)/M
+    return F
+
+def idft_1d(F):
+    '''
+    1-dimensional inverse discrete Fourier transform
+    F:  DFT
+    '''
+    M = len(F)
+    # this conjugate algorithm is simpler, but it may be slower because two
+    # conjugate operations are required "additionally"; let's keep the full
+    # version just in case
+    return np.conj(M*dft_1d(np.conj(F)))
+    #f = np.zeros(M, dtype=complex)
+    #for x in range(0, M):
+    #    for u in range(0, M):
+    #        f[x] += F[u]*np.exp(2j*np.pi*u*x/M)
+    #return f
+
+def fft_1d(f):
+    '''
+    1-dimensional fast Fourier transform
+    f:  Original image
+    '''
+    M = len(f)
+    K = int(M/2)
+    feven = f[::2]
+    fodd = f[1::2]
+    if K == 1:
+        Feven = feven[0]/2
+        Fodd = fodd[0]/2
+        F = np.array((Feven+Fodd, Feven-Fodd))
+    else:
+        Feven = fft_1d(feven)/2
+        Fodd = fft_1d(fodd)/2*np.exp(-2j*np.pi*np.arange(0,K)/(2*K))
+        F = np.concatenate((Feven+Fodd, Feven-Fodd))
+    return F
+
+def ifft_1d(F):
+    '''
+    1-dimensional inverse fast Fourier transform
+    F:  DFT
+    '''
+    M = len(F)
+    # this conjugate algorithm is simpler, but it may be slower because two
+    # conjugate operations are required "additionally"; let's keep the full
+    # version just in case
+    return np.conj(M*fft_1d(np.conj(F)))
+    #K = M/2
+    #Feven = F[::2]
+    #Fodd = F[1::2]
+    #if K == 1:
+    #    feven = Feven[0]/2
+    #    fodd = Fodd[0]/2
+    #    f = np.array((feven+fodd, feven-fodd))
+    #else:
+    #    feven = ifft_1d(Feven)/2
+    #    fodd = ifft_1d(Fodd)/2*np.exp(2j*np.pi*np.arange(0,K)/(2*K))
+    #    f = np.concatenate((feven+fodd, feven-fodd))
+    #return f
+
+def fft(f):
+    '''
+    2-dimensional fast Fourier transform
+    f:  Original image
+    '''
+    M, N = f.shape
+    Fx = np.zeros(f.shape, dtype=complex)
+    for x in range(0, M):
+        Fx[x] = fft_1d(f[x])
+    F = np.zeros(f.shape, dtype=complex)
+    for v in range(0, N):
+        F[...,v] = fft_1d(Fx[...,v])
+    return F
+
+def ifft(F):
+    '''
+    2-dimensional inverse fast Fourier transform
+    F:  DFT
+    '''
+    M, N = F.shape
+    # this conjugate algorithm is simpler, but it may be slower because two
+    # conjugate operations are required "additionally"; let's keep the full
+    # version just in case
+    return np.conj(M*N*fft(np.conj(F)))
+    #fx = np.zeros(F.shape, dtype=complex)
+    #for x in range(0, M):
+    #    fx[x] = ifft_1d(F[x])
+    #f = np.zeros(F.shape, dtype=complex)
+    #for v in range(0, N):
+    #    f[...,v] = ifft_1d(fx[...,v])
+    #return f
+
+def pad(x):
+    '''
+    Pad zeros to x so x.shape becomes a power of two
+    x:  2-dimensional array
+    '''
+    m, n = x.shape
+    M = 2**math.ceil(math.log2(m))
+    N = 2**math.ceil(math.log2(n))
+    if m != M or n != N:
+        M -= m
+        N -= n
+        t = int(M/2)
+        b = M-t
+        l = int(N/2)
+        r = N-l
+        x = np.pad(x, ((t,b), (l,r)), 'constant')
+    return x
+
+def shift(x):
+    '''
+    Shift x by (-1)**(row+column)
+    x:  2-dimensional array
+    '''
+    m, n = x.shape
+    y = x.copy()
+    for r in range(0, m):
+        for c in range(0, n):
+            y[r,c] *= (-1)**(r+c)
+
+    return y
+
+def spectrum(F):
+    '''
+    Calculate the Fourier spectrum
+    F:  Fourier transform
+    '''
+    return abs(F)
+
+def phase_angle(F):
+    '''
+    Calculate the Fourier phase angle
+    F:  Fourier transform
+    '''
+    return np.arctan2(F.imag, F.real)
+
+def power_spectrum(F):
+    '''
+    Calculate the Fourier power spectrum
+    F:  Fourier transform
+    '''
+    return spectrum(F)**2
