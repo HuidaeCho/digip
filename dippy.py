@@ -689,7 +689,7 @@ def dft_1d(f):
 def idft_1d(F):
     '''
     1-dimensional inverse discrete Fourier transform
-    F:  DFT
+    F:  Discrete Fourier transform
     '''
     M = len(F)
     # this conjugate algorithm is simpler, but it may be slower because two
@@ -724,7 +724,7 @@ def fft_1d(f):
 def ifft_1d(F):
     '''
     1-dimensional inverse fast Fourier transform
-    F:  DFT
+    F:  Discrete Fourier transform
     '''
     M = len(F)
     # this conjugate algorithm is simpler, but it may be slower because two
@@ -761,7 +761,7 @@ def fft(f):
 def ifft(F):
     '''
     2-dimensional inverse fast Fourier transform
-    F:  DFT
+    F:  Discrete Fourier transform
     '''
     M, N = F.shape
     # this conjugate algorithm is simpler, but it may be slower because two
@@ -810,20 +810,20 @@ def shift(x):
 def spectrum(F):
     '''
     Calculate the Fourier spectrum
-    F:  Fourier transform
+    F:  Discrete Fourier transform
     '''
     return abs(F)
 
 def phase_angle(F):
     '''
     Calculate the Fourier phase angle
-    F:  Fourier transform
+    F:  Discrete Fourier transform
     '''
     return np.arctan2(F.imag, F.real)
 
 def power_spectrum(F):
     '''
     Calculate the Fourier power spectrum
-    F:  Fourier transform
+    F:  Discrete Fourier transform
     '''
     return spectrum(F)**2
