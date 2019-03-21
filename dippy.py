@@ -102,7 +102,7 @@ def histogram(img, L=256, prob=False):
     L:      Gray levels (default 256)
     prob:   True for probability density, False for counts (default)
     '''
-    levels = range(0, L)
+    levels = range(L)
     hist = [sum(sum(img==l)) for l in levels]
     if prob:
         hist /= sum(hist)
@@ -135,8 +135,8 @@ def row_column_delete(img):
     '''
     new_shape = [int(x / 2) for x in img.shape]
     new_img = np.empty(new_shape)
-    for i in range(0, new_shape[0]):
-        for j in range(0, new_shape[1]):
+    for i in range(new_shape[0]):
+        for j in range(new_shape[1]):
             new_img[i,j] = img[2*i,2*j]
     return new_img
 
@@ -148,8 +148,8 @@ def nearest_neighbor_interpolate(img, scale):
     '''
     new_shape = [int(scale * x) for x in img.shape]
     new_img = np.empty(new_shape)
-    for i in range(0, new_shape[0]):
-        for j in range(0, new_shape[1]):
+    for i in range(new_shape[0]):
+        for j in range(new_shape[1]):
             row = int(i / scale)
             col = int(j / scale)
             new_img[i,j] = img[row,col]
@@ -220,8 +220,8 @@ def bilinear_interpolate(img, scale):
 
     new_shape = [int(scale * x) for x in img.shape]
     new_img = np.empty(new_shape)
-    for i in range(0, new_shape[0]):
-        for j in range(0, new_shape[1]):
+    for i in range(new_shape[0]):
+        for j in range(new_shape[1]):
             x = j / float(scale)
             y = i / float(scale)
             if ((x <= .5 and (y <= .5 or y >= img.shape[1]-1.5)) or
@@ -378,16 +378,16 @@ def histogram_equalize(img, L=256):
     L:      Gray levels (default 256)
     '''
     r = img
-    sumrk = [sum(sum(r==j))/r.size for j in range(0, L)]
+    sumrk = [sum(sum(r==j))/r.size for j in range(L)]
     sk = {}
-    for k in range(0, L):
+    for k in range(L):
         sk[k] = 0
-        for j in range(0, k+1):
+        for j in range(k+1):
             sk[k] += sumrk[j]
     skmax = np.max(list(sk.values()))
     s = np.ndarray(r.shape)
-    for i in range(0, s.shape[0]):
-        for j in range(0, s.shape[1]):
+    for i in range(s.shape[0]):
+        for j in range(s.shape[1]):
             s[i,j] = int(sk[s[i,j]]/skmax*(L-1.))
     return s
 
@@ -454,8 +454,8 @@ def add_noise(img, prob, max):
     max:    Maximum noise
     '''
     g = img.copy()
-    for i in range(0, g.shape[0]):
-        for j in range(0, g.shape[1]):
+    for i in range(g.shape[0]):
+        for j in range(g.shape[1]):
             if random.random() < prob:
                 g[i,j] += random.randint(-max, max)
     return g
@@ -519,8 +519,8 @@ def local_statistics(img, size, stats):
         maximum = np.ndarray(img.shape)
     else:
         maximum = None
-    for row in range(0, img.shape[0]):
-        for col in range(0, img.shape[1]):
+    for row in range(img.shape[0]):
+        for col in range(img.shape[1]):
             # find neighborhood
             row_min = max(row-half_row_size, 0)
             row_max = min(row+half_row_size, img.shape[0]-1)
@@ -577,8 +577,8 @@ def convolute(img, mask, average=False):
     half_row_size = int((mask.shape[0]-1)/2)
     half_col_size = int((mask.shape[1]-1)/2)
     g = img.astype(float)
-    for row in range(0, img.shape[0]):
-        for col in range(0, img.shape[1]):
+    for row in range(img.shape[0]):
+        for col in range(img.shape[1]):
             # find neighborhood
             row_min = max(row-half_row_size, 0)
             row_max = min(row+half_row_size, img.shape[0]-1)
@@ -679,8 +679,8 @@ def dft_1d(f):
     '''
     M = len(f)
     F = np.zeros(M, dtype=complex)
-    for u in range(0, M):
-        for x in range(0, M):
+    for u in range(M):
+        for x in range(M):
             F[u] += f[x]*np.exp(-2j*np.pi*u*x/M)/M
     return F
 
@@ -695,8 +695,8 @@ def idft_1d(F):
     # version just in case
     return np.conj(M*dft_1d(np.conj(F)))
     #f = np.zeros(M, dtype=complex)
-    #for x in range(0, M):
-    #    for u in range(0, M):
+    #for x in range(M):
+    #    for u in range(M):
     #        f[x] += F[u]*np.exp(2j*np.pi*u*x/M)
     #return f
 
@@ -715,7 +715,7 @@ def fft_1d(f):
         F = np.array((Feven+Fodd, Feven-Fodd))
     else:
         Feven = fft_1d(feven)/2
-        Fodd = fft_1d(fodd)/2*np.exp(-2j*np.pi*np.arange(0,K)/(2*K))
+        Fodd = fft_1d(fodd)/2*np.exp(-2j*np.pi*np.arange(K)/(2*K))
         F = np.concatenate((Feven+Fodd, Feven-Fodd))
     return F
 
@@ -738,7 +738,7 @@ def ifft_1d(F):
     #    f = np.array((feven+fodd, feven-fodd))
     #else:
     #    feven = ifft_1d(Feven)/2
-    #    fodd = ifft_1d(Fodd)/2*np.exp(2j*np.pi*np.arange(0,K)/(2*K))
+    #    fodd = ifft_1d(Fodd)/2*np.exp(2j*np.pi*np.arange(K)/(2*K))
     #    f = np.concatenate((feven+fodd, feven-fodd))
     #return f
 
@@ -749,10 +749,10 @@ def fft(f):
     '''
     M, N = f.shape
     Fx = np.zeros(f.shape, dtype=complex)
-    for x in range(0, M):
+    for x in range(M):
         Fx[x] = fft_1d(f[x])
     F = np.zeros(f.shape, dtype=complex)
-    for v in range(0, N):
+    for v in range(N):
         F[...,v] = fft_1d(Fx[...,v])
     return F
 
@@ -767,10 +767,10 @@ def ifft(F):
     # version just in case
     return np.conj(M*N*fft(np.conj(F)))
     #fx = np.zeros(F.shape, dtype=complex)
-    #for x in range(0, M):
+    #for x in range(M):
     #    fx[x] = ifft_1d(F[x])
     #f = np.zeros(F.shape, dtype=complex)
-    #for v in range(0, N):
+    #for v in range(N):
     #    f[...,v] = ifft_1d(fx[...,v])
     #return f
 
@@ -797,12 +797,11 @@ def shift(x):
     Shift x by (-1)**(row+column)
     x:  2-dimensional array
     '''
-    m, n = x.shape
-    y = x.copy()
-    for r in range(0, m):
-        for c in range(0, n):
-            y[r,c] *= (-1)**(r+c)
-
+    M, N = x.shape
+    y = np.ndarray(x.shape)
+    for r in range(M):
+        for c in range(N):
+            y[r,c] = x[r,c]*(-1)**(r+c)
     return y
 
 def spectrum(F):
@@ -825,3 +824,41 @@ def power_spectrum(F):
     F:  Discrete Fourier transform
     '''
     return spectrum(F)**2
+
+def ideal_lowpass_filter(size, D0):
+    '''
+    Ideal low-pass filter
+    size: M, N tuple
+    D0:   Cut-off frequency
+    '''
+    H = np.ndarray(size)
+    M = size[0]
+    N = size[1]
+    for u in range(M):
+        for v in range(N):
+            D = math.sqrt((u-M/2)**2+(v-N/2)**2)
+            H[u,v] = 1 if D <= D0 else 0
+    return H
+
+def gaussian_lowpass_filter(size, D0):
+    '''
+    Gaussian low-pass filter
+    size: M, N tuple
+    D0:   Cut-off frequency
+    '''
+    H = np.ndarray(size)
+    M = size[0]
+    N = size[1]
+    for u in range(M):
+        for v in range(N):
+            D = math.sqrt((u-M/2)**2+(v-N/2)**2)
+            H[u,v] = np.exp(-D**2/(2*D0**2))
+    return H
+
+def gaussian_highpass_filter(size, D0):
+    '''
+    Gaussian high-pass filter
+    size: M, N tuple
+    D0:   Cut-off frequency
+    '''
+    return 1 - gaussian_lowpass_filter(size, D0)
