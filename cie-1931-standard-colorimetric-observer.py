@@ -101,8 +101,6 @@ r = cie_observer[:,9]
 g = cie_observer[:,10]
 b = cie_observer[:,11]
 
-save = False
-
 plt.plot(lambd, rbar, 'r', label='rbar')
 plt.plot(lambd, gbar, 'g', label='gbar')
 plt.plot(lambd, bbar, 'b', label='bbar')
@@ -110,8 +108,7 @@ plt.title('CIE 1931 Standard Colorimetric Observer rgbbar')
 plt.xlabel('Wavelength (nm)')
 plt.ylabel('Intensity')
 plt.legend()
-if save:
-    plt.savefig('rgbbar.png')
+plt.savefig('rgbbar.png')
 plt.show()
 
 plt.plot(lambd, r, 'r', label='r')
@@ -121,8 +118,7 @@ plt.title('CIE 1931 Standard Colorimetric Observer rgb')
 plt.xlabel('Wavelength (nm)')
 plt.ylabel('Intensity')
 plt.legend()
-if save:
-    plt.savefig('rgb.png')
+plt.savefig('rgb.png')
 plt.show()
 
 plt.plot(lambd, xbar, 'r', label='xbar')
@@ -132,8 +128,7 @@ plt.title('CIE 1931 Standard Colorimetric Observer xyzbar')
 plt.xlabel('Wavelength (nm)')
 plt.ylabel('Intensity')
 plt.legend()
-if save:
-    plt.savefig('xyzbar.png')
+plt.savefig('xyzbar.png')
 plt.show()
 
 plt.plot(lambd, x, 'r', label='x')
@@ -143,6 +138,5 @@ plt.title('CIE 1931 Standard Colorimetric Observer xyz')
 plt.xlabel('Wavelength (nm)')
 plt.ylabel('Intensity')
 plt.legend()
-if save:
-    plt.savefig('xyz.png')
+plt.savefig('xyz.png')
 plt.show()
