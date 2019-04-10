@@ -828,8 +828,8 @@ def power_spectrum(F):
 def ideal_lowpass_filter(size, D0):
     '''
     Ideal low-pass filter
-    size: M, N tuple
-    D0:   Cut-off frequency
+    size:   M, N tuple
+    D0:     Cut-off frequency
     '''
     H = np.ndarray(size)
     M = size[0]
@@ -837,14 +837,16 @@ def ideal_lowpass_filter(size, D0):
     for u in range(M):
         for v in range(N):
             D = math.sqrt((u-M/2)**2+(v-N/2)**2)
+            if D <= D0:
+                print([u-M/2, v-M/2])
             H[u,v] = 1 if D <= D0 else 0
     return H
 
 def gaussian_lowpass_filter(size, D0):
     '''
     Gaussian low-pass filter
-    size: M, N tuple
-    D0:   Cut-off frequency
+    size:   M, N tuple
+    D0:     Cut-off frequency
     '''
     H = np.ndarray(size)
     M = size[0]
@@ -858,7 +860,79 @@ def gaussian_lowpass_filter(size, D0):
 def gaussian_highpass_filter(size, D0):
     '''
     Gaussian high-pass filter
-    size: M, N tuple
-    D0:   Cut-off frequency
+    size:   M, N tuple
+    D0:     Cut-off frequency
     '''
     return 1 - gaussian_lowpass_filter(size, D0)
+
+def rgb_to_cmy(R, G, B, maxRGB=255):
+    '''
+    Convert RGB to CMY
+    R:      R
+    G:      G
+    B:      B
+    maxRGB: Maximum RGB (255 by default)
+    '''
+    C = maxRGB-R;
+    M = maxRGB-G;
+    Y = maxRGB-B;
+    return C, M, Y
+
+def cmy_to_rgb(C, M, Y, maxCMY=255):
+    '''
+    Convert CMY to RGB
+    C:      C
+    M:      M
+    Y:      Y
+    maxCMY: Maximum CMY (255 by default)
+    '''
+    R = maxRGB-C;
+    G = maxRGB-M;
+    B = maxRGB-Y;
+    return R, G, B
+
+def rgb_to_hsi(R, G, B, maxRGB=255, Hnorm=False):
+    '''
+    Convert RGB to HSI
+    R:      R
+    G:      G
+    B:      B
+    maxRGB: Maximum RGB (255 by default)
+    Hnorm:  True for normalized H
+            False for H in degrees (default)
+    '''
+    I = (R+G+B)/3/maxRGB
+    theta = np.arccos(((R-G)_(R-B))/2/np.sqrt((R-G)**2+(R-B)*(G-B)))/np.pi*180
+    H = np.where(G >= B, theta, 360-theta)
+    if Hnorm:
+        H /= 360
+    S = 1-np.min([R, G, B])/I/maxRGB
+    return H, S, I
+
+def hsi_to_rgb(H, S, I, Hnorm=False, maxRGB=255):
+    '''
+    Convert HSI to RGB
+    H:      H
+    S:      S
+    I:      I
+    Hnorm:  True for normalized H
+            False for H in degrees (default)
+    maxRGB: Maximum RGB (255 by default)
+    '''
+    if Hnorm:
+        H *= 360
+    Hcase = np.where(H < 120, 1, np.where(H < 240, 2, 3))
+    H = np.where(Hcase == 1, H, np.where(Hcase == 2, H-120, H-240))
+    c1 = I*(1-S)
+    c2 = I*(1+S*np.cos(H/180*np.pi)/np.cos((60-H)/180*np.pi))
+    c3 = 3*I-(c1+c2)
+    R = np.where(np.logical_or(np.isnan(S), np.isinf(S)), 0,
+            np.where(np.logical_or(np.isnan(H), np.isinf(H)), I,
+                np.where(Hcase == 1, c2, np.where(Hcase == 2, c1, c3))))*maxRGB
+    G = np.where(np.logical_or(np.isnan(S), np.isinf(S)), 0,
+            np.where(np.logical_or(np.isnan(H), np.isinf(H)), I,
+                np.where(Hcase == 1, c3, np.where(Hcase == 2, c2, c1))))*maxRGB
+    B = np.where(np.logical_or(np.isnan(S), np.isinf(S)), 0,
+            np.where(np.logical_or(np.isnan(H), np.isinf(H)), I,
+                np.where(Hcase == 1, c1, np.where(Hcase == 2, c3, c2))))*maxRGB
+    return R, G, B
