@@ -902,7 +902,7 @@ def rgb_to_hsi(R, G, B, maxRGB=255, Hnorm=False):
             False for H in degrees (default)
     '''
     I = (R+G+B)/3/maxRGB
-    theta = np.arccos(((R-G)_(R-B))/2/np.sqrt((R-G)**2+(R-B)*(G-B)))/np.pi*180
+    theta = np.arccos(((R-G)+(R-B))/2/np.sqrt((R-G)**2+(R-B)*(G-B)))/np.pi*180
     H = np.where(G >= B, theta, 360-theta)
     if Hnorm:
         H /= 360
