@@ -25,6 +25,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import math
 import random
+import warnings
 
 def read_image(filename):
     '''
@@ -886,9 +887,9 @@ def cmy_to_rgb(C, M, Y, maxCMY=255):
     Y:      Y
     maxCMY: Maximum CMY (255 by default)
     '''
-    R = maxRGB-C;
-    G = maxRGB-M;
-    B = maxRGB-Y;
+    R = maxCMY-C;
+    G = maxCMY-M;
+    B = maxCMY-Y;
     return R, G, B
 
 def rgb_to_hsi(R, G, B, maxRGB=255, Hnorm=False):
@@ -901,12 +902,20 @@ def rgb_to_hsi(R, G, B, maxRGB=255, Hnorm=False):
     Hnorm:  True for normalized H
             False for H in degrees (default)
     '''
-    I = (R+G+B)/3/maxRGB
-    theta = np.arccos(((R-G)+(R-B))/2/np.sqrt((R-G)**2+(R-B)*(G-B)))/np.pi*180
-    H = np.where(G >= B, theta, 360-theta)
-    if Hnorm:
-        H /= 360
-    S = 1-np.min([R, G, B])/I/maxRGB
+    r = R/maxRGB
+    g = G/maxRGB
+    b = B/maxRGB
+    I = (r+g+b)/3
+    with warnings.catch_warnings():
+        # NaNs are expected when r=g=b
+        # Python throws a warning on NaN, but ArcGIS Pro just fails
+        warnings.simplefilter('ignore')
+        theta = np.arccos(((r-g)+(r-b))/2/np.sqrt((r-g)**2+(r-b)*(g-b)))/np.pi*180
+        H = np.where(g >= b, theta, 360-theta)
+        if Hnorm:
+            H /= 360
+        # clip S just in case there are small negative numbers
+        S = np.clip(1-np.minimum.reduce([r, g, b])/I, 0, 1)
     return H, S, I
 
 def hsi_to_rgb(H, S, I, Hnorm=False, maxRGB=255):
@@ -921,18 +930,16 @@ def hsi_to_rgb(H, S, I, Hnorm=False, maxRGB=255):
     '''
     if Hnorm:
         H *= 360
-    Hcase = np.where(H < 120, 1, np.where(H < 240, 2, 3))
-    H = np.where(Hcase == 1, H, np.where(Hcase == 2, H-120, H-240))
-    c1 = I*(1-S)
-    c2 = I*(1+S*np.cos(H/180*np.pi)/np.cos((60-H)/180*np.pi))
-    c3 = 3*I-(c1+c2)
-    R = np.where(np.logical_or(np.isnan(S), np.isinf(S)), 0,
-            np.where(np.logical_or(np.isnan(H), np.isinf(H)), I,
-                np.where(Hcase == 1, c2, np.where(Hcase == 2, c1, c3))))*maxRGB
-    G = np.where(np.logical_or(np.isnan(S), np.isinf(S)), 0,
-            np.where(np.logical_or(np.isnan(H), np.isinf(H)), I,
-                np.where(Hcase == 1, c3, np.where(Hcase == 2, c2, c1))))*maxRGB
-    B = np.where(np.logical_or(np.isnan(S), np.isinf(S)), 0,
-            np.where(np.logical_or(np.isnan(H), np.isinf(H)), I,
-                np.where(Hcase == 1, c1, np.where(Hcase == 2, c3, c2))))*maxRGB
+    with warnings.catch_warnings():
+        # NaNs are expected when r=g=b
+        # Python throws a warning on NaN, but ArcGIS Pro just fails
+        warnings.simplefilter('ignore')
+        case = np.where(np.isnan(H), 0, np.where(H < 120, 1, np.where(H < 240, 2, 3)))
+        H = np.where(case == 0, 0, np.where(case == 1, H, np.where(case == 2, H-120, H-240)))
+        c1 = np.where(case == 0, I, I*(1-S))
+        c2 = np.where(case == 0, I, I*(1+S*np.cos(H/180*np.pi)/np.cos((60-H)/180*np.pi)))
+        c3 = np.where(case == 0, I, 3*I-(c1+c2))
+    R = np.where(case <= 1, c2, np.where(case == 2, c1, c3))*maxRGB
+    G = np.where(case <= 1, c3, np.where(case == 2, c2, c1))*maxRGB
+    B = np.where(case <= 1, c1, np.where(case == 2, c3, c2))*maxRGB
     return R, G, B
