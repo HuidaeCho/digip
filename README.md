@@ -1,4 +1,4 @@
-# DIPPy: A Digital Image Processing Python module
+# DIPro: A Digital Image Processing Python module
 
 This module provides various digital image processing functions.
 
