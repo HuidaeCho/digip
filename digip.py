@@ -3,7 +3,7 @@
 # Name:    Digip: A Digital Image Processing Python module
 # Purpose: This module provides various digital image processing functions.
 # Author:  Huidae Cho
-# Since:   February 2, 2018
+# Since:   February 2, 2019
 #
 # Copyright (C) 2019, Huidae Cho <https://idea.isnew.info>
 #
