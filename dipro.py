@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 ################################################################################
-# Name:    DIPPy: A Digital Image Processing Python module
+# Name:    DIPro: A Digital Image Processing Python module
 # Purpose: This module provides various digital image processing functions.
 # Author:  Huidae Cho
 # Since:   February 2, 2018
