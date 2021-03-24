@@ -1,4 +1,4 @@
-# DIPro: A Digital Image Processing Python module
+# Digip: A Digital Image Processing Python module
 
 This module provides various digital image processing functions.
 
