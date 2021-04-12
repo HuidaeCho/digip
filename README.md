@@ -2,6 +2,10 @@
 
 This module provides various digital image processing functions.
 
+## TODO
+
+Manual
+
 ## License
 
 Copyright (C) 2019, Huidae Cho <<https://idea.isnew.info>>
