@@ -586,8 +586,36 @@ def convolute(img, mask, average=False):
             col_min = max(col-half_col_size, 0)
             col_max = min(col+half_col_size, img.shape[1]-1)
             S = img[row_min:row_max+1, col_min:col_max+1]
-            w = mask[row_min-row+1:row_max+1-row+1,
-                     col_min-col+1:col_max+1-col+1]
+
+            mask_row_min = 0
+            if row - half_row_size < 0:
+                mask_row_min = half_row_size - row
+            mask_row_max = mask.shape[0] - 1
+            if row + half_row_size >= img.shape[0]:
+                mask_row_max = mask_row_max - (row + half_row_size - img.shape[0])
+            mask_col_min = 0
+            if col - half_col_size < 0:
+                mask_col_min = half_col_size - col
+            mask_col_max = mask.shape[1] - 1
+            if col + half_col_size >= img.shape[1]:
+                mask_col_max = mask_col_max - (col + half_col_size - img.shape[1])
+            if mask_row_max - mask_row_min != row_max - row_min:
+                if row - half_row_size < 0:
+                    while mask_row_max - mask_row_min != row_max - row_min:
+                        mask_row_min += 1
+                else:
+                    while mask_row_max - mask_row_min != row_max - row_min:
+                        mask_row_max -= 1
+            if mask_col_max - mask_col_min != col_max - col_min:
+                if col - half_col_size < 0:
+                    while mask_col_max - mask_col_min != col_max - col_min:
+                        mask_col_min += 1
+                else:
+                    while mask_col_max - mask_col_min != col_max - col_min:
+                        mask_col_max -= 1
+            w = mask[mask_row_min:mask_row_max+1,
+                     mask_col_min:mask_col_max+1]
+
             if average:
                 g[row,col] = np.sum(S*w)/np.sum(w)
             else:
