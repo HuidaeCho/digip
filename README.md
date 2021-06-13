@@ -2,13 +2,16 @@
 
 This module provides various digital image processing functions.
 
+Developed as course materials for the Digital Image Processing for
+[IESA](https://ung.edu/iesa/).
+
 ## TODO
 
 Manual
 
 ## License
 
-Copyright (C) 2019, Huidae Cho <<https://idea.isnew.info>>
+Copyright (C) 2019, Huidae Cho <<https://faculty.ung.edu/hcho/>>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
