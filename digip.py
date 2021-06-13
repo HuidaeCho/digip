@@ -5,7 +5,8 @@
 # Author:  Huidae Cho
 # Since:   February 2, 2019
 #
-# Copyright (C) 2019, Huidae Cho <https://idea.isnew.info>
+# Copyright (C) 2019 Huidae Cho <https://faculty.ung.edu/hcho/>
+#                    Institute for Environmental and Spatial Analysis (IESA)
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
