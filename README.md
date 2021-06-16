@@ -2,7 +2,7 @@
 
 This module provides various digital image processing functions.
 
-Developed as course materials for the Digital Image Processing for
+Developed as course materials for the Digital Image Processing class for
 [the Institute for Environmental and Spatial Analysis](https://ung.edu/institute-environmental-spatial-analysis/)
 (IESA)
 
