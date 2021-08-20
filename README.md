@@ -1,6 +1,6 @@
-[![PyPI version](https://badge.fury.io/py/digip.svg)](https://badge.fury.io/py/digip)
-
 # Digip: A Digital Image Processing Python module
+
+[![PyPI version](https://badge.fury.io/py/digip.svg)](https://badge.fury.io/py/digip)
 
 This module provides various digital image processing functions.
 
