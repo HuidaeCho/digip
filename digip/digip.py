@@ -28,23 +28,30 @@ import math
 import random
 import warnings
 
+
 def read_image(filename):
-    '''
+    """
     Read an image
-    filename:   Filename
-    '''
+
+    Args:
+        filename (str): Filename
+
+    Returns:
+        numpy.array: Image array
+    """
     img = plt.imread(filename)
     return img
 
+
 def show_image(img, L=256, scale=False, stretch=False):
-    '''
+    """
     Show an image
     img:        Grayscale image
     L:          Gray levels (default 256)
     scale:      True for scaled images, False for the original size (default)
     stretch:    True for stretched grayscale,
                 False for 0 to L-1 gray levels (default)
-    '''
+    """
     if stretch:
         vmin = np.min(img)
         vmax = np.max(img)
@@ -59,8 +66,9 @@ def show_image(img, L=256, scale=False, stretch=False):
         plt.figimage(img, 0, 0, cmap='gray', vmin=vmin, vmax=vmax)
     plt.show()
 
+
 def compare_images(img1, img2, L=256, scale=False, stretch=False):
-    '''
+    """
     Compare two images
     img1:       Image 1
     img2:       Image 2
@@ -68,7 +76,7 @@ def compare_images(img1, img2, L=256, scale=False, stretch=False):
     scale:      True for scaled images, False for the original size (default)
     stretch:    True for stretched grayscale,
                 False for 0 to L-1 gray levels (default)
-    '''
+    """
     if stretch:
         vmin1 = np.min(img1)
         vmax1 = np.max(img1)
@@ -97,13 +105,14 @@ def compare_images(img1, img2, L=256, scale=False, stretch=False):
         plt.figimage(img2, figx, figy, cmap='gray', vmin=vmin2, vmax=vmax2)
     plt.show()
 
+
 def histogram(img, L=256, prob=False):
-    '''
+    """
     Plot the histogram of a grayscale image
     img:    Input image
     L:      Gray levels (default 256)
     prob:   True for probability density, False for counts (default)
-    '''
+    """
     levels = range(L)
     hist = [sum(sum(img==l)) for l in levels]
     if prob:
@@ -112,29 +121,32 @@ def histogram(img, L=256, prob=False):
     plt.vlines(levels, ymin=0, ymax=hist)
     plt.show()
 
+
 def convert_to_grayscale(img):
-    '''
+    """
     Convert a color image to grayscale (256 levels)
     img:    Input image
-    '''
+    """
     gray_img = np.dot(img, [.299, .587, .114])
     return gray_img
 
+
 def clip(img, start, end):
-    '''
+    """
     Clip an image
     img:    Input image
     start:  Start (row, column)
     end:    End (row, column)
-    '''
+    """
     clipped = img[start[0]:end[0], start[1]:end[1], :]
     return clipped
 
+
 def row_column_delete(img):
-    '''
+    """
     Row-column delete
     img:    Input image
-    '''
+    """
     new_shape = [int(x / 2) for x in img.shape]
     new_img = np.empty(new_shape)
     for i in range(new_shape[0]):
@@ -142,12 +154,13 @@ def row_column_delete(img):
             new_img[i,j] = img[2*i,2*j]
     return new_img
 
+
 def nearest_neighbor_interpolate(img, scale):
-    '''
+    """
     Nearest neighbor interpolate
     img:    Input image
     scale:  Scalar scale
-    '''
+    """
     new_shape = [int(scale * x) for x in img.shape]
     new_img = np.empty(new_shape)
     for i in range(new_shape[0]):
@@ -157,12 +170,13 @@ def nearest_neighbor_interpolate(img, scale):
             new_img[i,j] = img[row,col]
     return new_img
 
+
 def bilinear_interpolate(img, scale):
-    '''
+    """
     Bilinear interpolate
     img:    Input image
     scale:  Scalar scale
-    '''
+    """
     def get_corner_neighbor(img, x, y):
         return img[int(y),int(x)]
 
@@ -242,24 +256,26 @@ def bilinear_interpolate(img, scale):
 
     return new_img
 
+
 def normalize_gray_levels(img, grange=(0, 255)):
-    '''
+    """
     Normalize gray levels to [0, 1]
     img:    Input image
     grange: Gray-level range (min, max) (default 0, 255)
-    '''
+    """
     r = img.astype(float)
     if grange == None:
         grange = (np.min(r), np.max(r))
     s = (r - grange[0]) / (grange[1] - grange[0])
     return s
 
+
 def rescale_gray_levels(img, grange=(0, 1), L=256):
-    '''
+    """
     Rescale gray levels to [0, L-1]
     img:    Input image
     L:      Gray levels (default 256)
-    '''
+    """
     r = img.astype(float)
     if grange == None:
         grange = (np.min(r), np.max(r))
@@ -267,35 +283,38 @@ def rescale_gray_levels(img, grange=(0, 1), L=256):
     s = np.clip(s, 0, L-1.)
     return s
 
+
 def grayscale_transform(img, new_L, L=256):
-    '''
+    """
     Grayscale transform
     img:    Input image
     new_L:  New gray levels
     L:      Original gray levels (default 256)
-    '''
+    """
     r = img
     s = (r * (new_L-1.) / (L-1.)).astype(int)
     return s
 
+
 def negative_transform(img, L=256):
-    '''
+    """
     Negative transform
     img:    Input image
     L:      Gray levels (default 256)
-    '''
+    """
     r = img
     s = L - 1. - r
     return s
 
+
 def linear_transform(img, cp1, cp2, L=256):
-    '''
+    """
     Linear transform using two control points
     img:    Input image
     cp1:    Control point 1 (r1, s1)
     cp2:    Control point 2 (r2, s2)
     L:      Gray levels (default 256)
-    '''
+    """
     r = img
     r1 = cp1[0]
     s1 = cp1[1]
@@ -310,48 +329,52 @@ def linear_transform(img, cp1, cp2, L=256):
                     s2 + (L-1. - s2) / (L-1. - r2) * (r - r2)))
     return s
 
+
 def log_transform(img, L=256):
-    '''
+    """
     Log transform
     img:    Input image
     L:      Gray levels (default 256)
-    '''
+    """
     r = img
     c = (L - 1.) / math.log10(1. + np.max(r))
     s = c * np.log10(1. + r)
     return s
 
+
 def inverse_log_transform(img, L=256):
-    '''
+    """
     Inverse log transform
     img:    Input image
     L:      Gray levels (default 256)
-    '''
+    """
     r = img
     c = (L - 1.) / 10.**np.max(r)
     s = c * (10.**r - 1.)
     return s
 
+
 def power_transform(img, gamma, L=256):
-    '''
+    """
     Power transform
     img:    Input image
     gamma:  gamma
     L:      Gray levels (default 256)
-    '''
+    """
     r = img
     c = (L - 1.) / np.max(r)**gamma
     s = c * r**gamma
     return s
 
+
 def gray_level_slice(img, grange, new_gray, binary=False):
-    '''
+    """
     Gray-level slice
     img:        Input image
     grange:     Gray-level range (rmin, rmax)
     new_gray:   New gray level
     binary:     True for 0 for outside grange, False for identity (default)
-    '''
+    """
     r = img
     rmin = grange[0]
     rmax = grange[1]
@@ -363,22 +386,24 @@ def gray_level_slice(img, grange, new_gray, binary=False):
                 new_gray, r).astype(float)
     return s
 
+
 def bit_plane_slice(img, bit_plane):
-    '''
+    """
     Bit-plane slice
     img:        Input image
     bit_plane:  Bit plane starting with 0
-    '''
+    """
     r = img
     s = np.bitwise_and(r.astype(int), 1<<bit_plane).astype(float)
     return s
 
+
 def histogram_equalize(img, L=256):
-    '''
+    """
     Histogram equalize
     img:    Input image
     L:      Gray levels (default 256)
-    '''
+    """
     r = img
     sumrk = [sum(sum(r==j))/r.size for j in range(L)]
     sk = {}
@@ -393,68 +418,75 @@ def histogram_equalize(img, L=256):
             s[i,j] = int(sk[s[i,j]]/skmax*(L-1.))
     return s
 
+
 def bitwise_not(img):
-    '''
+    """
     Bitwise not
     img:   Input image
-    '''
+    """
     g = np.bitwise_not(img.astype(int)).astype(float)
     return g
 
+
 def bitwise_and(img1, img2):
-    '''
+    """
     Bitwise and
     img1:   Input image 1
     img2:   Input image 2
-    '''
+    """
     g = np.bitwise_and(img1.astype(int), img2.astype(int)).astype(float)
     return g
 
+
 def bitwise_or(img1, img2):
-    '''
+    """
     Bitwise or
     img1:   Input image 1
     img2:   Input image 2
-    '''
+    """
     g = np.bitwise_or(img1.astype(int), img2.astype(int)).astype(float)
     return g
 
+
 def bitwise_xor(img1, img2):
-    '''
+    """
     Bitwise xor
     img1:   Input image 1
     img2:   Input image 2
-    '''
+    """
     g = np.bitwise_xor(img1.astype(int), img2.astype(int)).astype(float)
     return g
 
+
 def add(imgs):
-    '''
+    """
     Add
     imgs:   Array of input images
-    '''
+    """
     K = len(imgs)
     g = imgs[0].copy()
     for i in range(1, K):
         g += imgs[i]
     return g
 
+
 def subtract(img1, img2):
-    '''
+    """
     Subtract
     img1:   Input image 1
     img2:   Input image 2
-    '''
+    """
     g = img1 - img2
     return g
 
+
 def add_noise(img, prob, max):
-    '''
+    """
     Add noise
     img:    Input image
     prob:   Probability of noise
     max:    Maximum noise
-    '''
+    """
     g = img.copy()
     for i in range(g.shape[0]):
         for j in range(g.shape[1]):
@@ -462,21 +494,23 @@ def add_noise(img, prob, max):
                 g[i,j] += random.randint(-max, max)
     return g
 
+
 def average(imgs):
-    '''
+    """
     Average images
     imgs:   Array of input images
-    '''
+    """
     g = add(imgs) / len(imgs)
     return g
 
+
 def find_neighborhood(img, current, size):
-    '''
+    """
     Find neighborhood
     img:        Input image
     current:    Current pixel (row, column)
     size:       Neighborhood size (rows, columns)
-    '''
+    """
     half_row_size = int((size[0]-1)/2)
     half_col_size = int((size[1]-1)/2)
     row_min = max(current[0]-half_row_size, 0)
@@ -486,8 +520,9 @@ def find_neighborhood(img, current, size):
     S = img[row_min:row_max+1, col_min:col_max+1]
     return S
 
+
 def local_statistics(img, size, stats):
-    '''
+    """
     Local statistics
     img:    Input image
     size:   Neighborhood size (rows, columns)
@@ -498,7 +533,7 @@ def local_statistics(img, size, stats):
              4 median
              8 minimum
             16 maximum
-    '''
+    """
     half_row_size = int((size[0]-1)/2)
     half_col_size = int((size[1]-1)/2)
     if stats & 1:
@@ -542,15 +577,16 @@ def local_statistics(img, size, stats):
                 maximum[row,col] = np.max(S)
     return mean, std, median, minimum, maximum
 
+
 def local_enhance(img, local_mean, local_std, mult, k):
-    '''
+    """
     Local enhance
     img:        Input image
     local_mean: Local mean image
     local_std:  Local standard deviation imagge
     mult:       Gray-level multiplier
     k:          Criteria parameters (k0, k1, k2)
-    '''
+    """
     if mult == 1:
         # identity
         g = img.copy()
@@ -569,13 +605,14 @@ def local_enhance(img, local_mean, local_std, mult, k):
                         local_std <= k[2]*std)), mult*img, img)
     return g
 
+
 def convolute(img, mask, average=False):
-    '''
+    """
     Convolute
     img:        Input image
     mask:       Mask
     average:    True for weighted average, False for convolution (default)
-    '''
+    """
     half_row_size = int((mask.shape[0]-1)/2)
     half_col_size = int((mask.shape[1]-1)/2)
     g = img.astype(float)
@@ -623,20 +660,22 @@ def convolute(img, mask, average=False):
                 g[row,col] = np.sum(S*w)
     return g
 
+
 def weighted_average(img, weights):
-    '''
+    """
     Weighted average
     img:        Input image
     weights:    Weights
-    '''
+    """
     g = convolute(img, weights, True);
     return g
 
+
 def first_derivative(img):
-    '''
+    """
     First derivative using the Sobel filter
     img:    Input image
-    '''
+    """
     mask_x = np.array([[-1, -2, -1],
                        [ 0,  0,  0],
                        [ 1,  2,  1]])
@@ -646,13 +685,14 @@ def first_derivative(img):
     g = np.abs(convolute(img, mask_x))+np.abs(convolute(img, mask_y))
     return g
 
+
 def second_derivative(img, diag=True):
-    '''
+    """
     Second derivative using the Laplacian filter
     img:    Input image
     diag:   True for diagonal directions (default),
             False for no diagonal directions
-    '''
+    """
     if diag:
         mask = np.array([[1,  1, 1],
                          [1, -8, 1],
@@ -664,14 +704,15 @@ def second_derivative(img, diag=True):
     g = convolute(img, mask)
     return g
 
+
 def sharpen(img, diag=True, L=256):
-    '''
+    """
     Laplacian sharpen
     img:    Input image
     diag:   True for diagonal directions (default),
             False for no diagonal directions
     L:      Gray levels (default 256)
-    '''
+    """
     if diag:
         mult = 8
     else:
@@ -683,14 +724,15 @@ def sharpen(img, diag=True, L=256):
     g = rescale_gray_levels(g, (np.min(g), np.max(g)), L)
     return g
 
+
 def high_boost_filter(img, A=1, diag=True):
-    '''
+    """
     High-boost filter using the Laplacian
     img:    Input image
     A:      High-boost filter parameter
     diag:   True for diagonal directions (default),
             False for no diagonal directions
-    '''
+    """
     if diag:
         mask = np.array([[-1,  -1, -1],
                          [-1, A+8, -1],
@@ -702,11 +744,12 @@ def high_boost_filter(img, A=1, diag=True):
     g = convolute(img, mask)
     return g
 
+
 def dft_1d(f):
-    '''
+    """
     1-dimensional discrete Fourier transform
     f:  Original image
-    '''
+    """
     M = len(f)
     F = np.zeros(M, dtype=complex)
     for u in range(M):
@@ -714,11 +757,12 @@ def dft_1d(f):
             F[u] += f[x]*np.exp(-2j*np.pi*u*x/M)/M
     return F
 
+
 def idft_1d(F):
-    '''
+    """
     1-dimensional inverse discrete Fourier transform
     F:  Discrete Fourier transform
-    '''
+    """
     M = len(F)
     # this conjugate algorithm is simpler, but it may be slower because two
     # conjugate operations are required "additionally"; let's keep the full
@@ -730,11 +774,12 @@ def idft_1d(F):
     #        f[x] += F[u]*np.exp(2j*np.pi*u*x/M)
     #return f
 
+
 def fft_1d(f):
-    '''
+    """
     1-dimensional fast Fourier transform
     f:  Original image
-    '''
+    """
     M = len(f)
     K = int(M/2)
     feven = f[::2]
@@ -749,11 +794,12 @@ def fft_1d(f):
         F = np.concatenate((Feven+Fodd, Feven-Fodd))
     return F
 
+
 def ifft_1d(F):
-    '''
+    """
     1-dimensional inverse fast Fourier transform
     F:  Discrete Fourier transform
-    '''
+    """
     M = len(F)
     # this conjugate algorithm is simpler, but it may be slower because two
     # conjugate operations are required "additionally"; let's keep the full
@@ -772,11 +818,12 @@ def ifft_1d(F):
     #    f = np.concatenate((feven+fodd, feven-fodd))
     #return f
 
+
 def fft(f):
-    '''
+    """
     2-dimensional fast Fourier transform
     f:  Original image
-    '''
+    """
     M, N = f.shape
     Fx = np.zeros(f.shape, dtype=complex)
     for x in range(M):
@@ -786,11 +833,12 @@ def fft(f):
         F[...,v] = fft_1d(Fx[...,v])
     return F
 
+
 def ifft(F):
-    '''
+    """
     2-dimensional inverse fast Fourier transform
     F:  Discrete Fourier transform
-    '''
+    """
     M, N = F.shape
     # this conjugate algorithm is simpler, but it may be slower because two
     # conjugate operations are required "additionally"; let's keep the full
@@ -804,11 +852,12 @@ def ifft(F):
     #    f[...,v] = ifft_1d(fx[...,v])
     #return f
 
+
 def pad(x):
-    '''
+    """
     Pad zeros to x so x.shape becomes a power of two
     x:  2-dimensional array
-    '''
+    """
     m, n = x.shape
     M = 2**math.ceil(math.log2(m))
     N = 2**math.ceil(math.log2(n))
@@ -822,11 +871,12 @@ def pad(x):
         x = np.pad(x, ((t,b), (l,r)), 'constant')
     return x
 
+
 def shift(x):
-    '''
+    """
     Shift x by (-1)**(row+column)
     x:  2-dimensional array
-    '''
+    """
     M, N = x.shape
     y = np.ndarray(x.shape)
     for r in range(M):
@@ -834,33 +884,37 @@ def shift(x):
             y[r,c] = x[r,c]*(-1)**(r+c)
     return y
 
+
 def spectrum(F):
-    '''
+    """
     Calculate the Fourier spectrum
     F:  Discrete Fourier transform
-    '''
+    """
     return abs(F)
 
+
 def phase_angle(F):
-    '''
+    """
     Calculate the Fourier phase angle
     F:  Discrete Fourier transform
-    '''
+    """
     return np.arctan2(F.imag, F.real)
 
+
 def power_spectrum(F):
-    '''
+    """
     Calculate the Fourier power spectrum
     F:  Discrete Fourier transform
-    '''
+    """
     return spectrum(F)**2
 
+
 def ideal_lowpass_filter(size, D0):
-    '''
+    """
     Ideal low-pass filter
     size:   M, N tuple
     D0:     Cut-off frequency
-    '''
+    """
     H = np.ndarray(size)
     M = size[0]
     N = size[1]
@@ -872,12 +926,13 @@ def ideal_lowpass_filter(size, D0):
             H[u,v] = 1 if D <= D0 else 0
     return H
 
+
 def gaussian_lowpass_filter(size, D0):
-    '''
+    """
     Gaussian low-pass filter
     size:   M, N tuple
     D0:     Cut-off frequency
-    '''
+    """
     H = np.ndarray(size)
     M = size[0]
     N = size[1]
@@ -887,42 +942,46 @@ def gaussian_lowpass_filter(size, D0):
             H[u,v] = np.exp(-D**2/(2*D0**2))
     return H
 
+
 def gaussian_highpass_filter(size, D0):
-    '''
+    """
     Gaussian high-pass filter
     size:   M, N tuple
     D0:     Cut-off frequency
-    '''
+    """
     return 1 - gaussian_lowpass_filter(size, D0)
 
+
 def rgb_to_cmy(R, G, B, maxRGB=255):
-    '''
+    """
     Convert RGB to CMY
     R:      R
     G:      G
     B:      B
     maxRGB: Maximum RGB (255 by default)
-    '''
+    """
     C = maxRGB-R;
     M = maxRGB-G;
     Y = maxRGB-B;
     return C, M, Y
 
+
 def cmy_to_rgb(C, M, Y, maxCMY=255):
-    '''
+    """
     Convert CMY to RGB
     C:      C
     M:      M
     Y:      Y
     maxCMY: Maximum CMY (255 by default)
-    '''
+    """
     R = maxCMY-C;
     G = maxCMY-M;
     B = maxCMY-Y;
     return R, G, B
 
+
 def rgb_to_hsi(R, G, B, maxRGB=255, Hnorm=False):
-    '''
+    """
     Convert RGB to HSI
     R:      R
     G:      G
@@ -930,7 +989,7 @@ def rgb_to_hsi(R, G, B, maxRGB=255, Hnorm=False):
     maxRGB: Maximum RGB (255 by default)
     Hnorm:  True for normalized H
             False for H in degrees (default)
-    '''
+    """
     r = R/maxRGB
     g = G/maxRGB
     b = B/maxRGB
@@ -947,8 +1006,9 @@ def rgb_to_hsi(R, G, B, maxRGB=255, Hnorm=False):
         S = np.clip(1-np.minimum.reduce([r, g, b])/I, 0, 1)
     return H, S, I
 
+
 def hsi_to_rgb(H, S, I, Hnorm=False, maxRGB=255):
-    '''
+    """
     Convert HSI to RGB
     H:      H
     S:      S
@@ -956,7 +1016,7 @@ def hsi_to_rgb(H, S, I, Hnorm=False, maxRGB=255):
     Hnorm:  True for normalized H
             False for H in degrees (default)
     maxRGB: Maximum RGB (255 by default)
-    '''
+    """
     if Hnorm:
         H *= 360
     with warnings.catch_warnings():
