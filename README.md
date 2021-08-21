@@ -11,7 +11,8 @@ Developed as course materials for the Digital Image Processing class for
 
 ## TODO
 
-Manual
+* API clean up
+* Manual
 
 ## License
 
