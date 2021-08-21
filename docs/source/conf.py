@@ -17,8 +17,8 @@ sys.path.insert(0, os.path.abspath("../../digip"))
 
 # -- Project information -----------------------------------------------------
 
-project = "GetOSM"
-copyright = "2021 Huidae Cho"
+project = "Digip"
+copyright = "2019 Huidae Cho"
 author = "Huidae Cho"
 
 # The full version, including alpha/beta/rc tags
