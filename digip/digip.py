@@ -31,13 +31,13 @@ import warnings
 
 def read_image(filename):
     """
-    Read an image
+    Read an image.
 
     Args:
-        filename (str): Filename
+        filename (str): Filename.
 
     Returns:
-        numpy.array: Image array
+        numpy.array: Image array.
     """
     img = plt.imread(filename)
     return img
@@ -45,12 +45,15 @@ def read_image(filename):
 
 def show_image(img, L=256, scale=False, stretch=False):
     """
-    Show an image
-    img:        Grayscale image
-    L:          Gray levels (default 256)
-    scale:      True for scaled images, False for the original size (default)
-    stretch:    True for stretched grayscale,
-                False for 0 to L-1 gray levels (default)
+    Show an image.
+
+    Args:
+        img (numpy.array): Grayscale image.
+        L (int): Gray levels. Defaults to 256.
+        scale (bool): True for scaled images; False for the original size.
+            Defaults to False.
+        stretch (bool): True for stretched grayscale; False for 0 to L-1 gray
+            levels. Defaults to False.
     """
     if stretch:
         vmin = np.min(img)
@@ -69,13 +72,16 @@ def show_image(img, L=256, scale=False, stretch=False):
 
 def compare_images(img1, img2, L=256, scale=False, stretch=False):
     """
-    Compare two images
-    img1:       Image 1
-    img2:       Image 2
-    L:          Gray levels (default 256)
-    scale:      True for scaled images, False for the original size (default)
-    stretch:    True for stretched grayscale,
-                False for 0 to L-1 gray levels (default)
+    Compare two images.
+
+    Args:
+        img1 (numpy.array): Image 1.
+        img2 (numpy.array): Image 2.
+        L (int): Gray levels. Defaults to 256.
+        scale (bool): True for scaled images; False for the original size.
+            Defaults to False.
+        stretch (bool): True for stretched grayscale; False for 0 to L-1 gray
+            levels. Defaults to False.
     """
     if stretch:
         vmin1 = np.min(img1)
@@ -108,10 +114,13 @@ def compare_images(img1, img2, L=256, scale=False, stretch=False):
 
 def histogram(img, L=256, prob=False):
     """
-    Plot the histogram of a grayscale image
-    img:    Input image
-    L:      Gray levels (default 256)
-    prob:   True for probability density, False for counts (default)
+    Plot the histogram of a grayscale image.
+
+    Args:
+        img (numpy.array): Input image.
+        L (int): Gray levels. Defaults to 256.
+        prob (bool): True for probability density; False for counts. Defaults
+            to False.
     """
     levels = range(L)
     hist = [sum(sum(img==l)) for l in levels]
