@@ -12,7 +12,7 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath("../../getosm"))
+sys.path.insert(0, os.path.abspath("../../digip"))
 
 
 # -- Project information -----------------------------------------------------
@@ -22,7 +22,7 @@ copyright = "2021 Huidae Cho"
 author = "Huidae Cho"
 
 # The full version, including alpha/beta/rc tags
-with open("../../getosm/VERSION") as f:
+with open("../../digip/VERSION") as f:
     release = f.read().strip()
 
 
@@ -56,7 +56,7 @@ html_theme = "press"
 
 html_theme_options = {
     "external_links": [
-        ("GitHub", "https://github.com/HuidaeCho/getosm")
+        ("GitHub", "https://github.com/HuidaeCho/digip")
     ]
 }
 
