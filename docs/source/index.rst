@@ -1,21 +1,21 @@
-Digip
-=====
-
-Digip is a Python module for digital image processing.
-
 .. toctree::
    :caption: Table of contents
    :hidden:
 
    index
 
+Digip
+=====
+
+Digip is a Python module for digital image processing.
+
 Requirements
 ------------
 
 Digip uses the following third-party Python modules:
 
-- `Matplotlib <https://matplotlib.org/>`_
-- `NumPy <https://numpy.org/>`_
+* `Matplotlib <https://matplotlib.org/>`_
+* `NumPy <https://numpy.org/>`_
 
 Installation
 ------------
@@ -48,6 +48,6 @@ digip module
 Indices and tables
 ------------------
 
-- :ref:`genindex`
-- :ref:`modindex`
-- :ref:`search`
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
